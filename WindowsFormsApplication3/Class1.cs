@@ -27,6 +27,12 @@ namespace WindowsFormsApplication3
             {
                 MouseEventArgs me = (MouseEventArgs)e;
                 Console.WriteLine(me);
+                if (!Game.start)
+                {
+                    this.father.start_timer();
+                    Game.start = true;
+                }
+                Game.move_counter.MoveCount++;
                 switch (me.Button)
                 {
                     case MouseButtons.Left:
@@ -42,7 +48,6 @@ namespace WindowsFormsApplication3
                         else
                         {
                             int count = this.father.bomb_count(this);
-                            //this.father.Opened += 1;
                             Console.WriteLine("count {0}", count);
                             this.Image = Game.numbers[count];
                             this.Enabled = false;
@@ -80,6 +85,12 @@ namespace WindowsFormsApplication3
                 Console.WriteLine("click down");
             }
         }
+
+        public void on_click_smile(Object sender, MouseEventArgs e)
+        {
+            Console.WriteLine("restart");
+        }
+
         //img_bomb_win
         public void explode()
         {

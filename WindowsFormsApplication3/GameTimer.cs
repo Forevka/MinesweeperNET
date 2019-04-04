@@ -30,8 +30,11 @@ namespace WindowsFormsApplication3
         private void TimerEventProcessor(Object myObject,
                                             EventArgs myEventArgs)
         {
-            clock += 1;
-            draw_time();
+            if (!Game.end)
+            {
+                clock += 1;
+                draw_time();
+            }
         }
 
         public void draw_time()

@@ -24,7 +24,7 @@ namespace WindowsFormsApplication3
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            Game g = new Game(this, 10, 10, 5);
+            Game g = new Game(this, 10, 10, 25);
         }
     }
 
@@ -34,6 +34,7 @@ namespace WindowsFormsApplication3
         public int field_width;
         public int field_height;
         public static bool end = false;
+        public static bool start = false;
         public int opened = 0;
         public int bombs_count;
         public GameTimer my_timer;
@@ -47,7 +48,9 @@ namespace WindowsFormsApplication3
         public static Image[] smiley;
         public static Image[] numbers;
         public static Image[] my_font;
-        public PictureBox[] pic;
+        public static MoveCounter move_counter;
+        public PictureBox[] timer_pic;
+        public PictureBox[] move_count;
 
 
         public Game(Form1 father, int width, int height, int bomb_count)
@@ -66,18 +69,25 @@ namespace WindowsFormsApplication3
             
             Random rand = new Random();
             Form1 father_form = father;
-            pic = new PictureBox[3];
-            father_form.calc_size(field_width, field_height, field_horizontal_offset, field_vertical_offset, button_size);
+            timer_pic = new PictureBox[3];
+            move_count = new PictureBox[3];
             for (int i = 0; i < 3; i++)
             {
-                pic[i] = new PictureBox();
-                pic[i].Location = new Point(10 + i * 14, 10);
-                pic[i].Name = "pic";
-                pic[i].Size = new Size(14, 23);
-                pic[i].Image = my_font[0];
-                father_form.Controls.Add(pic[i]);
+                timer_pic[i] = new PictureBox();
+                timer_pic[i].Location = new Point(10 + i * 14, 10);
+                timer_pic[i].Size = new Size(14, 23);
+                timer_pic[i].Image = my_font[0];
+                father_form.Controls.Add(timer_pic[i]);
+
+                move_count[i] = new PictureBox();
+                move_count[i].Location = new Point(field_width*button_size - 10 - (3-i) * 14, 10);
+                move_count[i].Size = new Size(14, 23);
+                move_count[i].Image = my_font[0];
+                father_form.Controls.Add(move_count[i]);
             }
-            my_timer = new GameTimer(pic);
+            move_counter = new MoveCounter(move_count);
+            father_form.calc_size(field_width, field_height, field_horizontal_offset, field_vertical_offset, button_size);
+            //my_timer = new GameTimer(pic);
 
             for (int i = 0; i < bomb_count; i++)
             {
@@ -94,10 +104,11 @@ namespace WindowsFormsApplication3
             this.smiley_button.FlatStyle = FlatStyle.Flat;
             this.smiley_button.BackColor = Color.Transparent;
             this.smiley_button.FlatAppearance.MouseDownBackColor = Color.Transparent;
-
             this.smiley_button.FlatAppearance.MouseOverBackColor = Color.Transparent;
             this.smiley_button.Size = new Size(26, 26);
-            this.smiley_button.Location = new Point(field_width * button_size/2 - 13, 13); 
+            this.smiley_button.Location = new Point(field_width * button_size/2 - 13, 13);
+            this.smiley_button.MouseUp += new MouseEventHandler(this.smiley_button.on_click_smile);
+            this.smiley_button.MouseDown += new MouseEventHandler(this.smiley_button.on_click_down);
             father_form.Controls.Add(this.smiley_button);
 
             for (int i = 0; i < field_width; i++)
@@ -126,6 +137,11 @@ namespace WindowsFormsApplication3
                 Console.WriteLine("x {0} y {1}", p.X, p.Y);
             }
             this.smiley_button.Focus();
+        }
+
+        public void start_timer()
+        {
+            my_timer = new GameTimer(this.timer_pic);
         }
 
         public bool with_bomb(Point t)
@@ -270,30 +286,17 @@ namespace WindowsFormsApplication3
             set { opened = value; }
         }
 
-        /*public void draw_image()
-        {
-            System.Drawing.Graphics g = this.CreateGraphics();
-            List<Image> num_list = Game.num_to_font(get_time());
-            //RectangleF srcRect = new RectangleF(50.0F, 50.0F, 150.0F, 150.0F);
-            foreach (Image num in num_list)
-            {
-                //e.Graphics.DrawImage(num, srcRect);
-                Console.WriteLine(num);
-                g.DrawImage(num, 100, 100);
-            }
-        }*/
-
         public static List<Image> num_to_font(int number)
         {
             string s_n = number.ToString();
-            //Image[] font_list = new Image[s_n.Length];
             List<Image> font_list = new List<Image>();
             foreach (char i in s_n)
             {
                 //Console.WriteLine(i);
                 font_list.Add(Game.my_font[i - '0']);
             }
-
+            for(int i = font_list.Count; i < 3;i++)
+                font_list.Insert(0, Game.my_font[0]);
             return font_list;
         }
 
