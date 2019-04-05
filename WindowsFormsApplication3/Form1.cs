@@ -12,6 +12,7 @@ namespace WindowsFormsApplication3
 {
     public partial class Form1 : Form
     {
+        public Game g;
         public Form1()
         {
             InitializeComponent();
@@ -19,12 +20,12 @@ namespace WindowsFormsApplication3
 
         public void calc_size(int f_w, int f_h, int f_h_off, int f_v_off, int b_size)
         {
-            this.Size = new Size(f_h_off + (b_size+2) * f_w, f_v_off + (b_size+4) * f_h);
+            this.Size = new Size(4+(b_size) * (f_w+1), f_v_off*2 + ((b_size) * f_h));
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            Game g = new Game(this, 10, 10, 25);
+            g = new Game(this, 10, 10, 25);
         }
     }
 
@@ -51,6 +52,7 @@ namespace WindowsFormsApplication3
         public static MoveCounter move_counter;
         public PictureBox[] timer_pic;
         public PictureBox[] move_count;
+        public Form1 father;
 
 
         public Game(Form1 father, int width, int height, int bomb_count)
@@ -58,38 +60,53 @@ namespace WindowsFormsApplication3
             field_width = width;
             field_height = height;
             this.bombs_count = bomb_count;
-            int field_horizontal_offset = 2;
-            int field_vertical_offset = 50;
-            int button_size = 16;
+            this.father = father;
+
+
 
             with_bombs = new Point[bomb_count];
             field_stats = new MyButton[field_width, field_height];
             load_assets();
             
             
-            Random rand = new Random();
-            Form1 father_form = father;
             timer_pic = new PictureBox[3];
             move_count = new PictureBox[3];
+            my_timer = new GameTimer(this.timer_pic);
+
+            start_game();
+            foreach (Point p in this.with_bombs)
+            {
+                Console.WriteLine("x {0} y {1}", p.X, p.Y);
+            }
+            //this.smiley_button.Focus();
+            
+        }
+
+        public void start_game()
+        {
+            int button_size = 16;
+            int field_horizontal_offset = 2;
+            int field_vertical_offset = 50;
+
+            Random rand = new Random();
+            Form1 father_form = this.father;
+
             for (int i = 0; i < 3; i++)
             {
                 timer_pic[i] = new PictureBox();
-                timer_pic[i].Location = new Point(10 + i * 14, 10);
+                timer_pic[i].Location = new Point(button_size / 2 + i * 14, 13);
                 timer_pic[i].Size = new Size(14, 23);
                 timer_pic[i].Image = my_font[0];
                 father_form.Controls.Add(timer_pic[i]);
 
                 move_count[i] = new PictureBox();
-                move_count[i].Location = new Point(field_width*button_size - 10 - (3-i) * 14, 10);
+                move_count[i].Location = new Point(field_width * button_size - button_size / 2 - (3 - i) * 14, 13);
                 move_count[i].Size = new Size(14, 23);
                 move_count[i].Image = my_font[0];
                 father_form.Controls.Add(move_count[i]);
             }
             move_counter = new MoveCounter(move_count);
-            father_form.calc_size(field_width, field_height, field_horizontal_offset, field_vertical_offset, button_size);
-            //my_timer = new GameTimer(pic);
-
-            for (int i = 0; i < bomb_count; i++)
+            for (int i = 0; i < this.bombs_count; i++)
             {
                 Point t = new Point(rand.Next(field_width), rand.Next(field_height));
                 while (with_bomb(t))
@@ -101,14 +118,11 @@ namespace WindowsFormsApplication3
 
             this.smiley_button = new MyButton(this, -1, -1);
             this.smiley_button.Image = Game.smiley[0];
-            this.smiley_button.FlatStyle = FlatStyle.Flat;
             this.smiley_button.BackColor = Color.Transparent;
-            this.smiley_button.FlatAppearance.MouseDownBackColor = Color.Transparent;
-            this.smiley_button.FlatAppearance.MouseOverBackColor = Color.Transparent;
             this.smiley_button.Size = new Size(26, 26);
-            this.smiley_button.Location = new Point(field_width * button_size/2 - 13, 13);
-            this.smiley_button.MouseUp += new MouseEventHandler(this.smiley_button.on_click_smile);
-            this.smiley_button.MouseDown += new MouseEventHandler(this.smiley_button.on_click_down);
+            this.smiley_button.Location = new Point(field_width * button_size / 2 - 13, 13);
+            this.smiley_button.MouseUp += new MouseEventHandler(this.smiley_button.on_click_up_smile);
+            this.smiley_button.MouseDown += new MouseEventHandler(this.smiley_button.on_click_down_smile);
             father_form.Controls.Add(this.smiley_button);
 
             for (int i = 0; i < field_width; i++)
@@ -117,11 +131,7 @@ namespace WindowsFormsApplication3
                 {
                     MyButton newButton = new MyButton(this, i, j);
                     newButton.Image = img_untouched;
-                    newButton.FlatStyle = FlatStyle.Flat;
                     newButton.BackColor = Color.Transparent;
-                    newButton.FlatAppearance.MouseDownBackColor = Color.Transparent;
-
-                    newButton.FlatAppearance.MouseOverBackColor = Color.Transparent;
                     newButton.Size = new Size(button_size, button_size);
                     newButton.MouseUp += new MouseEventHandler(newButton.on_click_up);
                     newButton.MouseDown += new MouseEventHandler(newButton.on_click_down);
@@ -132,17 +142,33 @@ namespace WindowsFormsApplication3
                     field_stats[i, j] = newButton;
                 }
             }
-            foreach (Point p in this.with_bombs)
-            {
-                Console.WriteLine("x {0} y {1}", p.X, p.Y);
-            }
-            this.smiley_button.Focus();
+            father_form.calc_size(field_width, field_height, field_horizontal_offset, field_vertical_offset, button_size);
+            //my_timer = new GameTimer(this.timer_pic);
         }
 
-        public void start_timer()
+        public void delete_game()
         {
-            my_timer = new GameTimer(this.timer_pic);
+            foreach (MyButton btn_row in field_stats)
+            {
+                Console.WriteLine(btn_row);
+                father.Controls.Remove(btn_row);
+            }
+            for (int i = 0; i < 3; i++)
+            {
+                father.Controls.Remove(timer_pic[i]);
+                father.Controls.Remove(move_count[i]);
+            }
+            father.Controls.Remove(this.smiley_button);
+            my_timer.restart();// = false;
+            Game.end = false;
+            Game.start = false;
         }
+
+        /*public void start_timer()
+        {
+            //my_timer.Enabled = false;
+            my_timer = new GameTimer(this.timer_pic);
+        }*/
 
         public bool with_bomb(Point t)
         {

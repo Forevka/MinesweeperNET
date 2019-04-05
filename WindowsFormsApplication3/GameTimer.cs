@@ -27,10 +27,17 @@ namespace WindowsFormsApplication3
             return clock;
         }
 
+        public void restart()
+        {
+            clock = 0;
+            //myTimer.Stop();
+        }
+
         private void TimerEventProcessor(Object myObject,
                                             EventArgs myEventArgs)
         {
-            if (!Game.end)
+
+            if (!Game.end && Game.start)
             {
                 clock += 1;
                 draw_time();

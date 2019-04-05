@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace WindowsFormsApplication3
 {
-    public class MyButton : Button
+    public class MyButton : PictureBox
     {
         public int state;
         public Point pos;
@@ -29,7 +29,7 @@ namespace WindowsFormsApplication3
                 Console.WriteLine(me);
                 if (!Game.start)
                 {
-                    this.father.start_timer();
+                    //this.father.start_timer();
                     Game.start = true;
                 }
                 Game.move_counter.MoveCount++;
@@ -43,6 +43,7 @@ namespace WindowsFormsApplication3
                         {
                             this.father.blow_up();
                             this.father.smiley_button.Image = Game.smiley[3];
+                            this.Image = Game.img_bombed;
                             Console.WriteLine("end");
                         }
                         else
@@ -86,15 +87,30 @@ namespace WindowsFormsApplication3
             }
         }
 
-        public void on_click_smile(Object sender, MouseEventArgs e)
+        public void on_click_up_smile(Object sender, MouseEventArgs e)
         {
             Console.WriteLine("restart");
+            this.father.delete_game();
+            this.father.start_game();
+        }
+
+        public void on_click_down_smile(Object sender, MouseEventArgs e)
+        {
+            MouseEventArgs me = (MouseEventArgs)e;
+            Console.WriteLine(me);
+            switch (me.Button)
+            {
+                case MouseButtons.Left:
+                    this.father.smiley_button.Image = Game.smiley[1];
+                    break;
+            }
+            Console.WriteLine("click down");
         }
 
         //img_bomb_win
         public void explode()
         {
-            this.Image = Game.img_bombed;
+            this.Image = Game.img_bomb_win;
         }
 
         public void explode_win()
