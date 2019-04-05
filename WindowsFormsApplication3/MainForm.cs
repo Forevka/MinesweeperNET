@@ -12,17 +12,19 @@ using WindowsFormsApplication3.Properties;
 
 namespace WindowsFormsApplication3
 {
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
         public Game g;
         private ToolStripMenuItem submenu_beginner;
         private ToolStripMenuItem submenu_intermediate;
         private ToolStripMenuItem submenu_expert;
         private ToolStripMenuItem submenu_custom;
-        public Form1()
+        public MainForm()
         {
             InitializeComponent();
             MenuStrip menuStrip = new MenuStrip();
+            menuStrip.RenderMode = ToolStripRenderMode.System;
+            menuStrip.LayoutStyle = ToolStripLayoutStyle.HorizontalStackWithOverflow;
             menuStrip.Location = new Point(0, 0);
             ToolStripMenuItem menu_game = new ToolStripMenuItem();
             menu_game.Name = "Game";
@@ -60,9 +62,14 @@ namespace WindowsFormsApplication3
             menu_game.DropDownItems.Add(submenu_custom);
             submenu_custom.Name = "Custom...";
             submenu_custom.Text = "Custom...";
-            //submenu_custom.Click += this.start_new_expert;
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
+            submenu_custom.Click += this.open_custom_form;
             this.Controls.Add(menuStrip);
+
+            this.FormBorderStyle = FormBorderStyle.FixedDialog;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
+            this.StartPosition = FormStartPosition.CenterScreen;
+            
         }
 
         public void calc_size(int f_w, int f_h, int f_h_off, int f_v_off, int b_size)
@@ -72,7 +79,7 @@ namespace WindowsFormsApplication3
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            this.g = new Game(this, 10, 10, 25);
+            this.g = new Game(this, 10, 10, 10);
             this.g.start_game();
             marker(false, false, false, true);
         }
@@ -106,6 +113,20 @@ namespace WindowsFormsApplication3
             marker(false, false, true, false);
         }
 
+        public void start_custom(int width, int height, int mines_count)
+        {
+            this.g.delete_game();
+            this.g = new Game(this, width, height, mines_count);
+            this.g.start_game();
+            marker(false, false, false, true);
+        }
+
+        private void open_custom_form(object sender, EventArgs e)
+        {
+            var myForm = new CustomFieldForm(this);
+            myForm.Show();
+        }
+
         private void marker(bool beg, bool med, bool expert, bool cust)
         {
             submenu_beginner.Checked = beg;
@@ -133,16 +154,18 @@ namespace WindowsFormsApplication3
         public static Image img_flagged;
         public static Image img_bombed;
         public static Image img_bomb_win;
+        public static Image img_no_bomb;
         public static Image[] smiley;
         public static Image[] numbers;
         public static Image[] my_font;
+        public static List<MyButton> flagged_btn;
         public static MoveCounter move_counter;
         public PictureBox[] timer_pic;
         public PictureBox[] move_count;
-        public Form1 father;
+        public MainForm father;
         
 
-        public Game(Form1 father, int width, int height, int bomb_count)
+        public Game(MainForm father, int width, int height, int bomb_count)
         {
             field_width = width;
             field_height = height;
@@ -156,9 +179,7 @@ namespace WindowsFormsApplication3
             
             timer_pic = new PictureBox[3];
             move_count = new PictureBox[3];
-            my_timer = new GameTimer(this.timer_pic);
-
-            //start_game();
+            
             foreach (Point p in this.with_bombs)
             {
                 Console.WriteLine("x {0} y {1}", p.X, p.Y);
@@ -172,7 +193,8 @@ namespace WindowsFormsApplication3
             int field_vertical_offset = 50;
 
             Random rand = new Random();
-            Form1 father_form = this.father;
+            MainForm father_form = this.father;
+            flagged_btn = new List<MyButton>();
 
             for (int i = 0; i < 3; i++)
             {
@@ -227,6 +249,7 @@ namespace WindowsFormsApplication3
                 }
             }
             father_form.calc_size(field_width, field_height, field_horizontal_offset, field_vertical_offset, button_size);
+            my_timer = new GameTimer(this.timer_pic);//.start();
         }
 
         public void delete_game()
@@ -242,19 +265,21 @@ namespace WindowsFormsApplication3
                 father.Controls.Remove(move_count[i]);
             }
             father.Controls.Remove(this.smiley_button);
-            my_timer.restart();// = false;
+            my_timer.stop();// = false;
             Game.end = false;
             Game.start = false;
         }
 
         public void restart_game(object sender, EventArgs e)
         {
+            this.Opened = 0;
             this.delete_game();
             this.start_game();
         }
 
         public void restart_game()
         {
+            this.Opened = 0;
             this.delete_game();
             this.start_game();
         }
@@ -276,7 +301,8 @@ namespace WindowsFormsApplication3
             int start_x = btn.pos.X;
             int start_y = btn.pos.Y;
             int count = 0;
-            this.Opened += 1;
+            //if (btn.Enabled)
+            //    this.Opened += 1;
             for (int i = -1 + start_x; i < 2 + start_x; i++)
             {
                 for (int j = -1 + start_y; j < 2 + start_y; j++)
@@ -304,6 +330,10 @@ namespace WindowsFormsApplication3
                     }
                 }
             }
+            else {
+                if (btn.Enabled)
+                    this.Opened += 1;
+            }
             return count;
         }
 
@@ -312,7 +342,8 @@ namespace WindowsFormsApplication3
             int start_x = btn.pos.X;
             int start_y = btn.pos.Y;
             int count = 0;
-
+            if (btn.Enabled)
+                this.Opened += 1;
             for (int i = -1 + start_x; i < 2 + start_x; i++)
             {
                 for (int j = -1 + start_y; j < 2 + start_y; j++)
@@ -327,6 +358,7 @@ namespace WindowsFormsApplication3
             
             if (count == 0)
             {
+                Game.flagged_btn.Remove(btn);
                 btn.Image = Game.numbers[count];
                 btn.Enabled = false;
                 for (int i = -1 + start_x; i < 2 + start_x; i++)
@@ -338,7 +370,7 @@ namespace WindowsFormsApplication3
                             MyButton neigh_btn = this.field_stats[i, j];
                             if (!except_button.Contains(neigh_btn))
                             {
-                                this.Opened += 1;
+                                
                                 except_button.Add(neigh_btn);
                                 this.open_if_no_bomb(neigh_btn, except_button);
                             }
@@ -347,7 +379,7 @@ namespace WindowsFormsApplication3
                 }
             }else
             {
-                //this.Opened += 1;
+                Game.flagged_btn.Remove(btn);
                 btn.Image = Game.numbers[count];
                 btn.Enabled = false;
             }
@@ -369,6 +401,13 @@ namespace WindowsFormsApplication3
                 MyButton mb = this.field_stats[p.X, p.Y];
                 mb.explode();
             }
+            foreach (MyButton btn in Game.flagged_btn)
+            {
+                if (!with_bomb(btn.pos))
+                {
+                    btn.false_bomb();//.Image = Game.img_no_bomb;
+                }
+            }
         }
 
         public void blow_up_win()
@@ -376,7 +415,6 @@ namespace WindowsFormsApplication3
             Game.end = true;
             foreach (Point p in this.with_bombs)
             {
-                Console.WriteLine("blowing bomb");
                 MyButton mb = this.field_stats[p.X, p.Y];
                 mb.explode_win();
             }
@@ -417,6 +455,7 @@ namespace WindowsFormsApplication3
             img_flagged = new Bitmap(WindowsFormsApplication3.Properties.Resources.flag);//Image.FromFile("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\flag.png");
             img_bombed = new Bitmap(WindowsFormsApplication3.Properties.Resources.bomb); //Image.FromFile("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\bomb.png");
             img_bomb_win = new Bitmap(WindowsFormsApplication3.Properties.Resources.bomb_win); //Image.FromFile("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\bomb_win.png");
+            img_no_bomb = new Bitmap(WindowsFormsApplication3.Properties.Resources.no_bomb);
             Game.numbers = new Image[9];
             Game.numbers[0] = new Bitmap(WindowsFormsApplication3.Properties.Resources.zero);//Image.FromFile("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\zero.png");
             Game.numbers[1] = new Bitmap(WindowsFormsApplication3.Properties.Resources.one);//Image.FromFile("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\one.png");
@@ -436,10 +475,9 @@ namespace WindowsFormsApplication3
             ResourceManager rm = new ResourceManager("Root", typeof(Image).Assembly);//string.ResourceManager;
             for (int i=0;i<10;i++)
             {
-                string load_path = String.Format("_{0}", i);//String.Format("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\font\\{0}.png", i);
+                string load_path = String.Format("_{0}", i);
                 object o = Resources.ResourceManager.GetObject(load_path);
                 Game.my_font[i] = (Image)o;
-                //Game.my_font[i] = Resources.ResourceManager.GetObject(load_path);//WindowsFormsApplication3.Properties.Resources.ResourceManager.GetObject(load_path);//new Bitmap(WindowsFormsApplication3.Properties.Resources.);//Image.FromFile(load_path);
             }
         }
     }

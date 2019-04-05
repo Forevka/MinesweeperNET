@@ -223,6 +223,16 @@ namespace WindowsFormsApplication3.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap no_bomb {
+            get {
+                object obj = ResourceManager.GetObject("no_bomb", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap one {
             get {
                 object obj = ResourceManager.GetObject("one", resourceCulture);

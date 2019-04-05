@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace WindowsFormsApplication3
 {
-    public class MoveCounter:Form1
+    public class MoveCounter:MainForm
     {
         private int move_count = 0;
         private PictureBox[] pic;
@@ -30,7 +30,7 @@ namespace WindowsFormsApplication3
             for (int i = 0; i < num_list.Count; i++)
             {
                 Image num = num_list[i];
-                Console.WriteLine(num);
+                //Console.WriteLine(num);
                 pic[i].Image = num;
             }
         }

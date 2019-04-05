@@ -2,8 +2,9 @@ F:\csharp\WindowsFormsApplication3\WindowsFormsApplication3\bin\Debug\WindowsFor
 F:\csharp\WindowsFormsApplication3\WindowsFormsApplication3\bin\Debug\WindowsFormsApplication3.exe
 F:\csharp\WindowsFormsApplication3\WindowsFormsApplication3\bin\Debug\WindowsFormsApplication3.pdb
 F:\csharp\WindowsFormsApplication3\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.csprojResolveAssemblyReference.cache
-F:\csharp\WindowsFormsApplication3\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.Form1.resources
 F:\csharp\WindowsFormsApplication3\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.Properties.Resources.resources
 F:\csharp\WindowsFormsApplication3\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.csproj.GenerateResource.Cache
 F:\csharp\WindowsFormsApplication3\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.exe
 F:\csharp\WindowsFormsApplication3\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.pdb
+F:\csharp\WindowsFormsApplication3\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.CustomFieldForm.resources
+F:\csharp\WindowsFormsApplication3\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.MainForm.resources

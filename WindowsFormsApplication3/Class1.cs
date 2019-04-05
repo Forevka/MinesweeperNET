@@ -39,7 +39,10 @@ namespace WindowsFormsApplication3
                     case MouseButtons.Left:
                         Console.WriteLine("LEFT coords {0}, {1}", this.pos.X, this.pos.Y);
                         if (this.Image == Game.img_flagged)
-                            break;
+                        {
+                            this.father.smiley_button.Image = Game.smiley[0];
+                            return;
+                        }
                         if (this.father.with_bomb(this.pos))
                         {
                             this.father.blow_up();
@@ -67,6 +70,7 @@ namespace WindowsFormsApplication3
                         if (this.Image == Game.img_flagged)
                         {
                             this.Image = Game.img_untouched;
+                            Game.flagged_btn.Remove(this);
                             Game.move_counter.MoveCount++;
                             return;
                         }
@@ -81,6 +85,7 @@ namespace WindowsFormsApplication3
                             else
                             {
                                 this.Image = Game.img_flagged;
+                                Game.flagged_btn.Add(this);
                                 Game.move_counter.MoveCount--;
                             }
                         }
@@ -104,18 +109,6 @@ namespace WindowsFormsApplication3
                         break;
                 }
                 Console.WriteLine("click down");
-                /*if (this.Image == Game.img_flagged)
-                {
-                    Game.move_counter.MoveCount++;
-                }
-                if (Game.move_counter.MoveCount > 0)
-                {
-                    //var t = this.Image == Game.img_flagged ? Game.move_counter.MoveCount++ : Game.move_counter.MoveCount--;
-                    if (this.Image == Game.img_flagged)
-                        Game.move_counter.MoveCount++;
-                    else
-                        Game.move_counter.MoveCount--;
-                }*/
             }
         }
 
@@ -123,7 +116,6 @@ namespace WindowsFormsApplication3
         {
             Console.WriteLine("restart");
             this.father.restart_game();
-            //this.father.start_game();
         }
 
         public void on_click_down_smile(Object sender, MouseEventArgs e)
@@ -139,10 +131,15 @@ namespace WindowsFormsApplication3
             Console.WriteLine("click down");
         }
 
-        //img_bomb_win
+        
         public void explode()
         {
             this.Image = Game.img_bomb_win;
+        }
+
+        public void false_bomb()
+        {
+            this.Image = Game.img_no_bomb;
         }
 
         public void explode_win()
