@@ -89,6 +89,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -114,6 +115,87 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\bomb.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\bomb_win.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\eight.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\five.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\flag.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\four.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\one.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\seven.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\six.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\smiley.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\smiley_defeat.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\smiley_ou.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\smiley_win.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\three.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\two.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\untouched.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\zero.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\font\0.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\font\1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\font\2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\font\3.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\font\4.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\font\5.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\font\6.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\font\7.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\font\8.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\font\9.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

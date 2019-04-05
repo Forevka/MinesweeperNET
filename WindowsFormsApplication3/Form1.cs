@@ -4,34 +4,121 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Resources;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using WindowsFormsApplication3.Properties;
 
 namespace WindowsFormsApplication3
 {
     public partial class Form1 : Form
     {
         public Game g;
+        private ToolStripMenuItem submenu_beginner;
+        private ToolStripMenuItem submenu_intermediate;
+        private ToolStripMenuItem submenu_expert;
+        private ToolStripMenuItem submenu_custom;
         public Form1()
         {
             InitializeComponent();
+            MenuStrip menuStrip = new MenuStrip();
+            menuStrip.Location = new Point(0, 0);
+            ToolStripMenuItem menu_game = new ToolStripMenuItem();
+            menu_game.Name = "Game";
+            menu_game.Text = "Game";
+            menuStrip.Items.Add(menu_game);
+            //
+            ToolStripMenuItem submenu_restart = new ToolStripMenuItem();
+            menu_game.DropDownItems.Add(submenu_restart);
+            submenu_restart.Name = "New";
+            submenu_restart.Text = "New";
+            submenu_restart.ShortcutKeys = Keys.F2;
+            submenu_restart.Click += this.restart;
+            //
+            menu_game.DropDownItems.Add(new ToolStripSeparator());
+            //
+            submenu_beginner = new ToolStripMenuItem();
+            menu_game.DropDownItems.Add(submenu_beginner);
+            submenu_beginner.Name = "Beginner";
+            submenu_beginner.Text = "Beginner";
+            submenu_beginner.Click += this.start_new_beginner;
+            //
+            submenu_intermediate = new ToolStripMenuItem();
+            menu_game.DropDownItems.Add(submenu_intermediate);
+            submenu_intermediate.Name = "Intermediate";
+            submenu_intermediate.Text = "Intermediate";
+            submenu_intermediate.Click += this.start_new_intermediate;
+            //
+            submenu_expert = new ToolStripMenuItem();
+            menu_game.DropDownItems.Add(submenu_expert);
+            submenu_expert.Name = "Expert";
+            submenu_expert.Text = "Expert";
+            submenu_expert.Click += this.start_new_expert;
+            //
+            submenu_custom = new ToolStripMenuItem();
+            menu_game.DropDownItems.Add(submenu_custom);
+            submenu_custom.Name = "Custom...";
+            submenu_custom.Text = "Custom...";
+            //submenu_custom.Click += this.start_new_expert;
+            this.FormBorderStyle = FormBorderStyle.FixedDialog;
+            this.Controls.Add(menuStrip);
         }
 
         public void calc_size(int f_w, int f_h, int f_h_off, int f_v_off, int b_size)
         {
-            this.Size = new Size(4+(b_size) * (f_w+1), f_v_off*2 + ((b_size) * f_h));
+            this.Size = new Size(4+(b_size) * (f_w+1), 15+f_v_off*2 + ((b_size) * f_h));
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            g = new Game(this, 10, 10, 25);
+            this.g = new Game(this, 10, 10, 25);
+            this.g.start_game();
+            marker(false, false, false, true);
+        }
+
+        private void restart(object sender, EventArgs e)
+        {
+            this.g.restart_game();
+        }
+
+        private void start_new_beginner(object sender, EventArgs e)
+        {
+            this.g.delete_game();
+            this.g = new Game(this, 9, 9, 10);
+            this.g.start_game();
+            marker(true, false, false, false);
+        }
+
+        private void start_new_intermediate(object sender, EventArgs e)
+        {
+            this.g.delete_game();
+            this.g = new Game(this, 16, 16, 40);
+            this.g.start_game();
+            marker(false, true, false, false);
+        }
+
+        private void start_new_expert(object sender, EventArgs e)
+        {
+            this.g.delete_game();
+            this.g = new Game(this, 30, 16, 99);
+            this.g.start_game();
+            marker(false, false, true, false);
+        }
+
+        private void marker(bool beg, bool med, bool expert, bool cust)
+        {
+            submenu_beginner.Checked = beg;
+            submenu_intermediate.Checked = med;
+            submenu_expert.Checked = expert;
+            submenu_custom.Checked = cust;
         }
     }
 
     public class Game : Form
     {
         private int time_clock;
+        private int strip_menu_offset = 15;
         public int field_width;
         public int field_height;
         public static bool end = false;
@@ -53,7 +140,7 @@ namespace WindowsFormsApplication3
         public PictureBox[] timer_pic;
         public PictureBox[] move_count;
         public Form1 father;
-
+        
 
         public Game(Form1 father, int width, int height, int bomb_count)
         {
@@ -61,8 +148,6 @@ namespace WindowsFormsApplication3
             field_height = height;
             this.bombs_count = bomb_count;
             this.father = father;
-
-
 
             with_bombs = new Point[bomb_count];
             field_stats = new MyButton[field_width, field_height];
@@ -73,13 +158,11 @@ namespace WindowsFormsApplication3
             move_count = new PictureBox[3];
             my_timer = new GameTimer(this.timer_pic);
 
-            start_game();
+            //start_game();
             foreach (Point p in this.with_bombs)
             {
                 Console.WriteLine("x {0} y {1}", p.X, p.Y);
             }
-            //this.smiley_button.Focus();
-            
         }
 
         public void start_game()
@@ -94,18 +177,19 @@ namespace WindowsFormsApplication3
             for (int i = 0; i < 3; i++)
             {
                 timer_pic[i] = new PictureBox();
-                timer_pic[i].Location = new Point(button_size / 2 + i * 14, 13);
+                timer_pic[i].Location = new Point(field_width * button_size - button_size / 2 - (3 - i) * 14, strip_menu_offset+13);
                 timer_pic[i].Size = new Size(14, 23);
                 timer_pic[i].Image = my_font[0];
                 father_form.Controls.Add(timer_pic[i]);
 
                 move_count[i] = new PictureBox();
-                move_count[i].Location = new Point(field_width * button_size - button_size / 2 - (3 - i) * 14, 13);
+                move_count[i].Location = new Point(button_size / 2 + i * 14, strip_menu_offset+13);
                 move_count[i].Size = new Size(14, 23);
                 move_count[i].Image = my_font[0];
                 father_form.Controls.Add(move_count[i]);
             }
             move_counter = new MoveCounter(move_count);
+            move_counter.MoveCount = this.bombs_count;
             for (int i = 0; i < this.bombs_count; i++)
             {
                 Point t = new Point(rand.Next(field_width), rand.Next(field_height));
@@ -120,7 +204,7 @@ namespace WindowsFormsApplication3
             this.smiley_button.Image = Game.smiley[0];
             this.smiley_button.BackColor = Color.Transparent;
             this.smiley_button.Size = new Size(26, 26);
-            this.smiley_button.Location = new Point(field_width * button_size / 2 - 13, 13);
+            this.smiley_button.Location = new Point(field_width * button_size / 2 - 13, strip_menu_offset + 13);
             this.smiley_button.MouseUp += new MouseEventHandler(this.smiley_button.on_click_up_smile);
             this.smiley_button.MouseDown += new MouseEventHandler(this.smiley_button.on_click_down_smile);
             father_form.Controls.Add(this.smiley_button);
@@ -136,14 +220,13 @@ namespace WindowsFormsApplication3
                     newButton.MouseUp += new MouseEventHandler(newButton.on_click_up);
                     newButton.MouseDown += new MouseEventHandler(newButton.on_click_down);
                     newButton.Location = new Point(field_horizontal_offset + i * button_size,
-                                                    field_vertical_offset + j * button_size);
+                                                    strip_menu_offset + field_vertical_offset + j * button_size);
                     father_form.Controls.Add(newButton);
 
                     field_stats[i, j] = newButton;
                 }
             }
             father_form.calc_size(field_width, field_height, field_horizontal_offset, field_vertical_offset, button_size);
-            //my_timer = new GameTimer(this.timer_pic);
         }
 
         public void delete_game()
@@ -164,11 +247,18 @@ namespace WindowsFormsApplication3
             Game.start = false;
         }
 
-        /*public void start_timer()
+        public void restart_game(object sender, EventArgs e)
         {
-            //my_timer.Enabled = false;
-            my_timer = new GameTimer(this.timer_pic);
-        }*/
+            this.delete_game();
+            this.start_game();
+        }
+
+        public void restart_game()
+        {
+            this.delete_game();
+            this.start_game();
+        }
+
 
         public bool with_bomb(Point t)
         {
@@ -183,8 +273,6 @@ namespace WindowsFormsApplication3
 
         public int bomb_count(MyButton btn)
         {
-            //Console.WriteLine("OCLOCK {0}",my_timer.get_time());
-            //num_to_font(my_timer.get_time());
             int start_x = btn.pos.X;
             int start_y = btn.pos.Y;
             int count = 0;
@@ -202,8 +290,6 @@ namespace WindowsFormsApplication3
             }
             if (count == 0)
             {
-                //btn.Image = Game.numbers[count];
-                //btn.Enabled = false;
                 List<MyButton> b_list = new List<MyButton>();
                 b_list.Add(btn);
                 for (int i = -1 + start_x; i < 2 + start_x; i++)
@@ -241,7 +327,6 @@ namespace WindowsFormsApplication3
             
             if (count == 0)
             {
-                //this.Opened += 1;
                 btn.Image = Game.numbers[count];
                 btn.Enabled = false;
                 for (int i = -1 + start_x; i < 2 + start_x; i++)
@@ -328,30 +413,33 @@ namespace WindowsFormsApplication3
 
         private void load_assets()
         {
-            img_untouched = Image.FromFile("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\untouched.png");
-            img_flagged = Image.FromFile("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\flag.png");
-            img_bombed = Image.FromFile("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\bomb.png");
-            img_bomb_win = Image.FromFile("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\bomb_win.png");
+            img_untouched = new Bitmap(WindowsFormsApplication3.Properties.Resources.untouched);//"F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\untouched.png");
+            img_flagged = new Bitmap(WindowsFormsApplication3.Properties.Resources.flag);//Image.FromFile("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\flag.png");
+            img_bombed = new Bitmap(WindowsFormsApplication3.Properties.Resources.bomb); //Image.FromFile("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\bomb.png");
+            img_bomb_win = new Bitmap(WindowsFormsApplication3.Properties.Resources.bomb_win); //Image.FromFile("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\bomb_win.png");
             Game.numbers = new Image[9];
-            Game.numbers[0] = Image.FromFile("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\zero.png");
-            Game.numbers[1] = Image.FromFile("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\one.png");
-            Game.numbers[2] = Image.FromFile("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\two.png");
-            Game.numbers[3] = Image.FromFile("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\three.png");
-            Game.numbers[4] = Image.FromFile("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\four.png");
-            Game.numbers[5] = Image.FromFile("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\five.png");
-            Game.numbers[6] = Image.FromFile("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\six.png");
-            Game.numbers[7] = Image.FromFile("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\seven.png");
-            Game.numbers[8] = Image.FromFile("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\eight.png");
+            Game.numbers[0] = new Bitmap(WindowsFormsApplication3.Properties.Resources.zero);//Image.FromFile("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\zero.png");
+            Game.numbers[1] = new Bitmap(WindowsFormsApplication3.Properties.Resources.one);//Image.FromFile("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\one.png");
+            Game.numbers[2] = new Bitmap(WindowsFormsApplication3.Properties.Resources.two);//Image.FromFile("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\two.png");
+            Game.numbers[3] = new Bitmap(WindowsFormsApplication3.Properties.Resources.three);//Image.FromFile("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\three.png");
+            Game.numbers[4] = new Bitmap(WindowsFormsApplication3.Properties.Resources.four);//Image.FromFile("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\four.png");
+            Game.numbers[5] = new Bitmap(WindowsFormsApplication3.Properties.Resources.five);//Image.FromFile("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\five.png");
+            Game.numbers[6] = new Bitmap(WindowsFormsApplication3.Properties.Resources.six); //Image.FromFile("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\six.png");
+            Game.numbers[7] = new Bitmap(WindowsFormsApplication3.Properties.Resources.seven);//Image.FromFile("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\seven.png");
+            Game.numbers[8] = new Bitmap(WindowsFormsApplication3.Properties.Resources.eight);//Image.FromFile("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\eight.png");
             Game.smiley = new Image[4];
-            Game.smiley[0] = Image.FromFile("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\smiley.png");
-            Game.smiley[1] = Image.FromFile("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\smiley_ou.png");
-            Game.smiley[2] = Image.FromFile("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\smiley_win.png");
-            Game.smiley[3] = Image.FromFile("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\smiley_defeat.png");
+            Game.smiley[0] = new Bitmap(WindowsFormsApplication3.Properties.Resources.smiley);//Image.FromFile("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\smiley.png");
+            Game.smiley[1] = new Bitmap(WindowsFormsApplication3.Properties.Resources.smiley_ou);//Image.FromFile("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\smiley_ou.png");
+            Game.smiley[2] = new Bitmap(WindowsFormsApplication3.Properties.Resources.smiley_win);//Image.FromFile("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\smiley_win.png");
+            Game.smiley[3] = new Bitmap(WindowsFormsApplication3.Properties.Resources.smiley_defeat);//Image.FromFile("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\smiley_defeat.png");
             Game.my_font = new Image[10];
-            for(int i=0;i<10;i++)
+            ResourceManager rm = new ResourceManager("Root", typeof(Image).Assembly);//string.ResourceManager;
+            for (int i=0;i<10;i++)
             {
-                string load_path = String.Format("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\font\\{0}.png", i);
-                Game.my_font[i] = Image.FromFile(load_path);
+                string load_path = String.Format("_{0}", i);//String.Format("F:\\csharp\\WindowsFormsApplication3\\WindowsFormsApplication3\\assets\\font\\{0}.png", i);
+                object o = Resources.ResourceManager.GetObject(load_path);
+                Game.my_font[i] = (Image)o;
+                //Game.my_font[i] = Resources.ResourceManager.GetObject(load_path);//WindowsFormsApplication3.Properties.Resources.ResourceManager.GetObject(load_path);//new Bitmap(WindowsFormsApplication3.Properties.Resources.);//Image.FromFile(load_path);
             }
         }
     }

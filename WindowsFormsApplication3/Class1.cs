@@ -15,12 +15,13 @@ namespace WindowsFormsApplication3
         public Game father;
         public Point[] with_bombs;
         public bool hovered = false;
+        private bool counted = false;
         public MyButton(Game f, int xx, int yy) : base()
         {
             this.pos = new Point(xx, yy);
             this.father = f;
+            //this.
         }
-        //this.father.smiley_button.Image = Game.smiley[1];
         public void on_click_up(Object sender, MouseEventArgs e)
         {
             if (!Game.end)
@@ -32,7 +33,7 @@ namespace WindowsFormsApplication3
                     //this.father.start_timer();
                     Game.start = true;
                 }
-                Game.move_counter.MoveCount++;
+                //Game.move_counter.MoveCount++;
                 switch (me.Button)
                 {
                     case MouseButtons.Left:
@@ -63,7 +64,26 @@ namespace WindowsFormsApplication3
                         break;
                     case MouseButtons.Right:
                         Console.WriteLine("RIGHT coords {0}, {1}", this.pos.X, this.pos.Y);
-                        this.Image = this.Image == Game.img_flagged ? Game.img_untouched : Game.img_flagged;
+                        if (this.Image == Game.img_flagged)
+                        {
+                            this.Image = Game.img_untouched;
+                            Game.move_counter.MoveCount++;
+                            return;
+                        }
+                        if (Game.move_counter.MoveCount > 0)
+                        {
+                            //this.Image = this.Image == Game.img_flagged ? Game.img_untouched : Game.img_flagged;
+                            if (this.Image == Game.img_flagged)
+                            {
+                                this.Image = Game.img_untouched;
+                                Game.move_counter.MoveCount++;
+                            }
+                            else
+                            {
+                                this.Image = Game.img_flagged;
+                                Game.move_counter.MoveCount--;
+                            }
+                        }
                         break;
                 }
             }
@@ -84,14 +104,26 @@ namespace WindowsFormsApplication3
                         break;
                 }
                 Console.WriteLine("click down");
+                /*if (this.Image == Game.img_flagged)
+                {
+                    Game.move_counter.MoveCount++;
+                }
+                if (Game.move_counter.MoveCount > 0)
+                {
+                    //var t = this.Image == Game.img_flagged ? Game.move_counter.MoveCount++ : Game.move_counter.MoveCount--;
+                    if (this.Image == Game.img_flagged)
+                        Game.move_counter.MoveCount++;
+                    else
+                        Game.move_counter.MoveCount--;
+                }*/
             }
         }
 
         public void on_click_up_smile(Object sender, MouseEventArgs e)
         {
             Console.WriteLine("restart");
-            this.father.delete_game();
-            this.father.start_game();
+            this.father.restart_game();
+            //this.father.start_game();
         }
 
         public void on_click_down_smile(Object sender, MouseEventArgs e)
