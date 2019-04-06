@@ -26,6 +26,7 @@ namespace WindowsFormsApplication3
             menuStrip.RenderMode = ToolStripRenderMode.System;
             menuStrip.LayoutStyle = ToolStripLayoutStyle.HorizontalStackWithOverflow;
             menuStrip.Location = new Point(0, 0);
+            //
             ToolStripMenuItem menu_game = new ToolStripMenuItem();
             menu_game.Name = "Game";
             menu_game.Text = "Game";
@@ -63,6 +64,19 @@ namespace WindowsFormsApplication3
             submenu_custom.Name = "Custom...";
             submenu_custom.Text = "Custom...";
             submenu_custom.Click += this.open_custom_form;
+            //
+            ToolStripMenuItem menu_solver = new ToolStripMenuItem();
+            menu_solver.Name = "Solver";
+            menu_solver.Text = "Solver";
+            menuStrip.Items.Add(menu_solver);
+            //
+            ToolStripMenuItem submenu_start_solver = new ToolStripMenuItem();
+            menu_solver.DropDownItems.Add(submenu_start_solver);
+            submenu_start_solver.Name = "Open Solver";
+            submenu_start_solver.Text = "Open Solver";
+            submenu_start_solver.ShortcutKeys = Keys.F4;
+            submenu_start_solver.Click += this.open_solver_form;
+            //
             this.Controls.Add(menuStrip);
 
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
@@ -82,6 +96,12 @@ namespace WindowsFormsApplication3
             this.g = new Game(this, 10, 10, 10);
             this.g.start_game();
             marker(false, false, false, true);
+        }
+
+        private void open_solver_form(object sender, EventArgs e)
+        {
+            var myForm = new SolverForm(this);
+            myForm.Show();
         }
 
         private void restart(object sender, EventArgs e)
@@ -180,10 +200,10 @@ namespace WindowsFormsApplication3
             timer_pic = new PictureBox[3];
             move_count = new PictureBox[3];
             
-            foreach (Point p in this.with_bombs)
+            /*foreach (Point p in this.with_bombs)
             {
                 Console.WriteLine("x {0} y {1}", p.X, p.Y);
-            }
+            }*/
         }
 
         public void start_game()
@@ -256,7 +276,7 @@ namespace WindowsFormsApplication3
         {
             foreach (MyButton btn_row in field_stats)
             {
-                Console.WriteLine(btn_row);
+                //Console.WriteLine(btn_row);
                 father.Controls.Remove(btn_row);
             }
             for (int i = 0; i < 3; i++)
@@ -287,7 +307,7 @@ namespace WindowsFormsApplication3
 
         public bool with_bomb(Point t)
         {
-            Console.WriteLine("x {0} y {1}", t.X, t.Y);
+            //Console.WriteLine("x {0} y {1}", t.X, t.Y);
             foreach(Point p in this.with_bombs)
             {
                 if (p == t)
@@ -303,6 +323,7 @@ namespace WindowsFormsApplication3
             int count = 0;
             //if (btn.Enabled)
             //    this.Opened += 1;
+            //btn.bomb_neighbours = -1;
             for (int i = -1 + start_x; i < 2 + start_x; i++)
             {
                 for (int j = -1 + start_y; j < 2 + start_y; j++)
@@ -317,6 +338,7 @@ namespace WindowsFormsApplication3
             if (count == 0)
             {
                 List<MyButton> b_list = new List<MyButton>();
+                btn.bomb_neighbours = -1;
                 b_list.Add(btn);
                 for (int i = -1 + start_x; i < 2 + start_x; i++)
                 {
@@ -332,7 +354,10 @@ namespace WindowsFormsApplication3
             }
             else {
                 if (btn.Enabled)
+                {
+                    btn.bomb_neighbours = count;
                     this.Opened += 1;
+                }
             }
             return count;
         }
@@ -343,7 +368,9 @@ namespace WindowsFormsApplication3
             int start_y = btn.pos.Y;
             int count = 0;
             if (btn.Enabled)
+            {
                 this.Opened += 1;
+            }
             for (int i = -1 + start_x; i < 2 + start_x; i++)
             {
                 for (int j = -1 + start_y; j < 2 + start_y; j++)
@@ -359,6 +386,7 @@ namespace WindowsFormsApplication3
             if (count == 0)
             {
                 Game.flagged_btn.Remove(btn);
+                btn.bomb_neighbours = -1;
                 btn.Image = Game.numbers[count];
                 btn.Enabled = false;
                 for (int i = -1 + start_x; i < 2 + start_x; i++)
@@ -381,6 +409,7 @@ namespace WindowsFormsApplication3
             {
                 Game.flagged_btn.Remove(btn);
                 btn.Image = Game.numbers[count];
+                btn.bomb_neighbours = count;
                 btn.Enabled = false;
             }
             
@@ -399,7 +428,8 @@ namespace WindowsFormsApplication3
             foreach (Point p in this.with_bombs)
             {
                 MyButton mb = this.field_stats[p.X, p.Y];
-                mb.explode();
+                if (!Game.flagged_btn.Contains(mb))
+                    mb.explode();
             }
             foreach (MyButton btn in Game.flagged_btn)
             {
@@ -423,7 +453,7 @@ namespace WindowsFormsApplication3
         public bool have_opened()
         {
             //int o = (this.field_width * this.field_height - this.Opened);
-            Console.WriteLine("HAVE OPENED {0} bombs count {1}", this.Opened, this.bombs_count);
+            //Console.WriteLine("HAVE OPENED {0} bombs count {1}", this.Opened, this.bombs_count);
             if (this.Opened + this.bombs_count == this.field_width * this.field_height)
                 return false;
             return true;

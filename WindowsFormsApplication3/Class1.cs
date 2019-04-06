@@ -16,6 +16,7 @@ namespace WindowsFormsApplication3
         public Point[] with_bombs;
         public bool hovered = false;
         private bool counted = false;
+        public int bomb_neighbours = 0;
         public MyButton(Game f, int xx, int yy) : base()
         {
             this.pos = new Point(xx, yy);
@@ -34,6 +35,7 @@ namespace WindowsFormsApplication3
                     Game.start = true;
                 }
                 //Game.move_counter.MoveCount++;
+                Console.WriteLine(me.Button);
                 switch (me.Button)
                 {
                     case MouseButtons.Left:
@@ -55,6 +57,7 @@ namespace WindowsFormsApplication3
                             int count = this.father.bomb_count(this);
                             Console.WriteLine("count {0}", count);
                             this.Image = Game.numbers[count];
+                            //this.bomb_neighbours = count;
                             this.Enabled = false;
                             this.father.smiley_button.Image = Game.smiley[0];
                             if (!this.father.have_opened())

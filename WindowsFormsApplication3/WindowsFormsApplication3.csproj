@@ -70,6 +70,10 @@
     <Compile Include="CustomFieldForm.Designer.cs">
       <DependentUpon>CustomFieldForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="SolverForm.cs" />
+    <Compile Include="SolverForm.Designer.cs">
+      <DependentUpon>SolverForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -100,6 +104,10 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="SolverForm.resx">
+      <DependentUpon>SolverForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="ClassDiagram1.cd" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
