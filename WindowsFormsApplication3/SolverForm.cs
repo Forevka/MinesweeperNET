@@ -271,7 +271,7 @@ namespace WindowsFormsApplication3
         {
             List<Panel> board = this.get_board_info();
             var number_panels = board.Where(x => x.IsRevealed && x.AdjacentMines > 0);
-            
+
             foreach (var panel in number_panels)
             {
                 //For each revealed number panel on the board, get its neighbors.
@@ -283,13 +283,10 @@ namespace WindowsFormsApplication3
                     //All those hidden panels must be mines, so flag them.
                     foreach (var neighbor in neighborPanels.Where(x => !x.IsRevealed))
                     {
-                        MyButton btn = game_instance.field_stats[neighbor.pos.X, neighbor.pos.Y];
-                        send_click(btn, 1);
-                        write_history(String.Format("Flagged on x - {0}, y - {1}", neighbor.pos.X, neighbor.pos.Y));
+                        game_instance.field_stats[neighbor.pos.X, neighbor.pos.Y].set_flagged();
                     }
                 }
             }
-            
         }
 
         public void RandomMove()
@@ -313,11 +310,7 @@ namespace WindowsFormsApplication3
         {
             var board = this.get_board_info();
             var number_panels = board.Where(x => x.IsRevealed && x.AdjacentMines > 0);
-            /*var flagged_panels = board.Where(x => x.IsFlagged);
-            foreach (Panel p in flagged_panels)
-            {
-                Console.WriteLine("Flagged panel in {0} {1}", p.pos.X, p.pos.Y);
-            }*/
+
             foreach (var numberPanel in number_panels)
             {
                 //Foreach number panel
@@ -346,9 +339,11 @@ namespace WindowsFormsApplication3
             //Count all the flagged panels.  If the number of flagged panels == the number of mines on the board, reveal all non-flagged panels.
             var board = this.get_board_info();
             var flaggedPanels = board.Where(x => x.IsFlagged).Count();
+            Console.WriteLine("ENDGAME FLAGGED COUNT {0}", flaggedPanels);
             if (flaggedPanels == game_instance.bombs_count)
             {
                 //Reveal all unrevealed, unflagged panels
+                
                 var unrevealedPanels = board.Where(x => !x.IsFlagged && !x.IsRevealed);
                 foreach (var panel in unrevealedPanels)
                 {
