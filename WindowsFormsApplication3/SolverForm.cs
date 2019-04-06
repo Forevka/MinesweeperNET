@@ -158,6 +158,7 @@ namespace WindowsFormsApplication3
         }
     }
 
+    //public class 
 
     public partial class SolverForm : Form
     {
@@ -167,6 +168,7 @@ namespace WindowsFormsApplication3
         private List<Point> history;
         private Random rnd = new Random();
         private List<Group> group_list;
+        private int move_number = 0;
 
         public SolverForm(MainForm father)
         {
@@ -178,7 +180,7 @@ namespace WindowsFormsApplication3
             group_list = new List<Group>();
             history = new List<Point>();
             draw_array(this.board_info);
-            
+            button1.Text = "First Move";
         }
 
         private void clear_groups()
@@ -197,7 +199,8 @@ namespace WindowsFormsApplication3
             clear_groups();
             Console.WriteLine(group_list.Count);
             List<Point> possible_moves = new List<Point>();
-            if (MoveHistoryList.Items.Count==0)//first move
+            write_history(String.Format("-- Starting move {0} --", move_number));
+            if (move_number == 0)//first move
             {
                 possible_moves.Add(new Point(0, 0));
                 possible_moves.Add(new Point(0, game_instance.field_height-1));
@@ -206,28 +209,30 @@ namespace WindowsFormsApplication3
                 int r = rnd.Next(possible_moves.Count);
                 Point rnd_point = possible_moves[r];
                 MyButton btn = game_instance.field_stats[rnd_point.X, rnd_point.Y];
-                //btn.Click();
                 send_click(btn, 0);
-                //Console.WriteLine("Clicked to x {0}", rnd_point.X);
-                //Console.WriteLine("Clicked to y {0}", rnd_point.Y);
                 write_history(String.Format("clicked on x - {0}, y - {1}", rnd_point.X, rnd_point.Y));
-
+                
             }
-            else
+            else 
             {
                 FlagObviousMines();
                 if (HasAvailableMoves())
                 {
                     ObviousNumbers();
                 }
-                else //No available moves, we must guess to continue
+                else
                 {
                     RandomMove();
                 }
+                Endgame();
                 //ObviousNumbers();
             }
             this.board_info = get_board_info();
             draw_array(this.board_info);
+            write_history(String.Format("-- Ending move {0} --", move_number));
+            move_number++;
+            button1.Text = String.Format("Move {0}", move_number);
+            
         }
         public List<Panel> GetNeighbors(Panel p)
         {
@@ -251,13 +256,9 @@ namespace WindowsFormsApplication3
             var numberedPanels = board.Where(x => x.IsRevealed && x.AdjacentMines > 0);
             foreach (var numberPanel in numberedPanels)
             {
-                //Foreach number panel
                 var neighborPanels = GetNeighbors(numberPanel);
-
-                //Get all of that panel's flagged neighbors
                 var flaggedNeighbors = neighborPanels.Where(x => x.IsFlagged);
 
-                //If the number of flagged neighbors equals the number in the current panel...
                 if (flaggedNeighbors.Count() == numberPanel.AdjacentMines)
                 {
                     return true;
@@ -268,10 +269,9 @@ namespace WindowsFormsApplication3
 
         public void FlagObviousMines()
         {
-            //var numberPanels = Board.Panels.Where(x => x.IsRevealed && x.AdjacentMines > 0);
             List<Panel> board = this.get_board_info();
             var number_panels = board.Where(x => x.IsRevealed && x.AdjacentMines > 0);
-
+            
             foreach (var panel in number_panels)
             {
                 //For each revealed number panel on the board, get its neighbors.
@@ -285,10 +285,11 @@ namespace WindowsFormsApplication3
                     {
                         MyButton btn = game_instance.field_stats[neighbor.pos.X, neighbor.pos.Y];
                         send_click(btn, 1);
-                        write_history(String.Format("clicked on x - {0}, y - {1}", neighbor.pos.X, neighbor.pos.Y));
+                        write_history(String.Format("Flagged on x - {0}, y - {1}", neighbor.pos.X, neighbor.pos.Y));
                     }
                 }
             }
+            
         }
 
         public void RandomMove()
@@ -304,9 +305,8 @@ namespace WindowsFormsApplication3
                 panel = board[randomID];//board.Panels.First(x => x.ID == randomID);
             }
             MyButton btn = game_instance.field_stats[panel.pos.X, panel.pos.Y];
-            //btn.Click();
             send_click(btn, 0);
-            //Board.RevealPanel(panel.X, panel.Y);
+            write_history(String.Format("clicked on x - {0}, y - {1}", btn.pos.X, btn.pos.Y));
         }
 
         public void ObviousNumbers()
@@ -339,6 +339,25 @@ namespace WindowsFormsApplication3
                 }
             }
 
+        }
+
+        public void Endgame()
+        {
+            //Count all the flagged panels.  If the number of flagged panels == the number of mines on the board, reveal all non-flagged panels.
+            var board = this.get_board_info();
+            var flaggedPanels = board.Where(x => x.IsFlagged).Count();
+            if (flaggedPanels == game_instance.bombs_count)
+            {
+                //Reveal all unrevealed, unflagged panels
+                var unrevealedPanels = board.Where(x => !x.IsFlagged && !x.IsRevealed);
+                foreach (var panel in unrevealedPanels)
+                {
+                    //Board.RevealPanel(panel.X, panel.Y);
+                    MyButton btn = game_instance.field_stats[panel.pos.X, panel.pos.Y];
+                    send_click(btn, 0);
+                    write_history(String.Format("clicked on x - {0}, y - {1}", panel.pos.X, panel.pos.Y));
+                }
+            }
         }
 
         private void send_click(MyButton btn, int m_b)

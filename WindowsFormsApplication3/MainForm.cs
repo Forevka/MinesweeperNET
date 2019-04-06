@@ -93,7 +93,7 @@ namespace WindowsFormsApplication3
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            this.g = new Game(this, 10, 10, 10);
+            this.g = new Game(this, 16, 16, 40);
             this.g.start_game();
             marker(false, false, false, true);
         }
