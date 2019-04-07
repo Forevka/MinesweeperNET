@@ -100,16 +100,6 @@ namespace WindowsFormsApplication3
             this.father.smiley_button.Focus();
         }
 
-        public void set_flagged()
-        {
-            this.Image = Game.img_flagged;
-            if (!Game.flagged_btn.Contains(this))
-            {
-                Game.flagged_btn.Add(this);
-                Game.move_counter.MoveCount--;
-            }
-        }
-
         public void on_click_down(Object sender, MouseEventArgs e)
         {
             if (!Game.end)
