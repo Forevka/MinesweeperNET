@@ -159,7 +159,7 @@ namespace WindowsFormsApplication3
         public void explode_win()
         {
             this.Image = Game.img_bomb_win;
-            Console.WriteLine("bomb win");
+            //Console.WriteLine("bomb win");
         }
     }
 }

@@ -79,6 +79,7 @@ namespace WindowsFormsApplication3
             //
             this.Controls.Add(menuStrip);
 
+            this.Text = "Minesweeper by Forevka";
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
@@ -164,6 +165,7 @@ namespace WindowsFormsApplication3
         public int field_height;
         public static bool end = false;
         public static bool start = false;
+        public static bool win = false;
         public int opened = 0;
         public int bombs_count;
         public GameTimer my_timer;
@@ -443,11 +445,13 @@ namespace WindowsFormsApplication3
         public void blow_up_win()
         {
             Game.end = true;
+            Game.win = true;
             foreach (Point p in this.with_bombs)
             {
                 MyButton mb = this.field_stats[p.X, p.Y];
                 mb.explode_win();
             }
+
         }
 
         public bool have_opened()

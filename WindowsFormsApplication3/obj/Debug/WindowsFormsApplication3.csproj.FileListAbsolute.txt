@@ -8,4 +8,4 @@ F:\csharp\WindowsFormsApplication3\WindowsFormsApplication3\obj\Debug\WindowsFor
 F:\csharp\WindowsFormsApplication3\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.pdb
 F:\csharp\WindowsFormsApplication3\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.CustomFieldForm.resources
 F:\csharp\WindowsFormsApplication3\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.MainForm.resources
-F:\csharp\WindowsFormsApplication3\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.Group.resources
+F:\csharp\WindowsFormsApplication3\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.Panel.resources

@@ -10,137 +10,6 @@ using System.Windows.Forms;
 
 namespace WindowsFormsApplication3
 {
-    public class Group
-    {
-        private Point master;//owner
-        private int master_bombs;
-        private List<Point> neigh;
-        private int[,] field;
-        public bool to_delete = false;
-        Random rnd = new Random();
-
-        public Group(Point master, int[,] field)
-        {
-            this.master = master;
-            
-            neigh = new List<Point>();
-            this.field = field;
-            create_group();
-            show_group();
-        }
-
-        public Group(int x, int y, int[,] field)
-        {
-            this.master = new Point(x, y);
-            this.field = field;
-        }
-
-        private void create_group()
-        {
-            int start_x = this.master.X;
-            int start_y = this.master.Y;
-
-            int rowLength = this.field.GetLength(0);
-            int colLength = this.field.GetLength(1);
-
-            for (int i = -1 + start_x; i < 2 + start_x; i++)
-            {
-                for (int j = -1 + start_y; j < 2 + start_y; j++)
-                {
-                    if(i >= 0 && i < rowLength && j>=0 && j<colLength)
-                    {
-                        if (this.field[i, j] == 0)
-                            add_to_group(new Point(i, j));
-                    }
-                }
-            }
-        }
-
-        public void compare_group(Group other_group)
-        {
-            var other_list = other_group.get_group();
-            var this_list = this.get_group();
-
-            if (!(other_group.master.X == this.master.X && other_group.master.Y == this.master.Y))
-            { 
-                var contains = ContainsAllItems(this_list, other_list);
-                if(is_full_copy(this_list, other_list))
-                {
-                    Console.WriteLine("{0} {1} Full copy of {2} {3}", this.master.X, this.master.Y, other_group.master.X, other_group.master.Y);
-                    other_group.clear_group();//neigh.Clear();
-                }
-                if (contains == 1)
-                {
-                    Console.WriteLine("{0} {1} Contains other group with {2} {3}", this.master.X, this.master.Y, other_group.master.X, other_group.master.Y);
-                    if (this_list.Count >= other_list.Count)
-                    {
-                        //var new_list = this_list.Concat(other_list);
-                        foreach(Point p in other_list)
-                        {
-                            this_list.Remove(p);
-                        }
-                    }
-                }else if(contains == other_list.Count)
-                {
-                    //other_group.neigh.Clear();
-                    //this_list.Clear();
-                }else
-                {
-                    
-                }
-            }
-            this.neigh = this_list;
-            //need returning group!!
-        }
-
-        public static int ContainsAllItems(List<Point> a, List<Point> b)
-        {
-            //return !b.Except(a).Any();
-            int count = 0;
-            /*foreach(Point p in a)
-            {
-                if()
-            }*/
-            for(int i = 0; i < a.Count; i++)
-            {
-                for(int j = 0; j< b.Count; j++)
-                {
-                    if (a[i] == b[j])
-                        count++;
-                }
-            }
-            return count;
-        }
-
-        public static bool is_full_copy(List<Point> a, List<Point> b)
-        {
-            return !b.Except(a).Any();
-        }
-
-        public List<Point> get_group()
-        {
-            return neigh;
-        }
-
-        public void clear_group()
-        {
-            this.neigh.Clear();
-        }
-
-        public void show_group()
-        {
-            foreach(Point p in neigh)
-            {
-                Console.WriteLine("Master {0} neigh: x {1} y {2}", this.master, p.X, p.Y);
-            }
-            Console.WriteLine("\n");
-        }
-
-        private void add_to_group(Point newbie)
-        {
-            neigh.Add(newbie);
-        }
-    }
 
     public class Panel
     {
@@ -158,8 +27,6 @@ namespace WindowsFormsApplication3
         }
     }
 
-    //public class 
-
     public partial class SolverForm : Form
     {
         private MainForm father;
@@ -167,7 +34,6 @@ namespace WindowsFormsApplication3
         private List<Panel> board_info;
         private List<Point> history;
         private Random rnd = new Random();
-        private List<Group> group_list;
         private int move_number = 0;
 
         public SolverForm(MainForm father)
@@ -177,27 +43,17 @@ namespace WindowsFormsApplication3
             game_instance = father.g;
             this.board_info = get_board_info();
             Console.WriteLine(this.board_info.Count);
-            group_list = new List<Group>();
             history = new List<Point>();
             draw_array(this.board_info);
             button1.Text = "First Move";
         }
 
-        private void clear_groups()
-        {
-            group_list.Clear();
-        }
-
-        private void append_group(Group n)
-        {
-            group_list.Add(n);
-        }
 
         private void button1_Click(object sender, EventArgs e)
         {
             //Console.WriteLine(is_game_end());
-            clear_groups();
-            Console.WriteLine(group_list.Count);
+            //clear_groups();
+            //Console.WriteLine(group_list.Count);
             List<Point> possible_moves = new List<Point>();
             write_history(String.Format("-- Starting move {0} --", move_number));
             if (move_number == 0)//first move
@@ -219,10 +75,12 @@ namespace WindowsFormsApplication3
                 if (HasAvailableMoves())
                 {
                     ObviousNumbers();
+                    write_history(String.Format("Has available move"));
                 }
                 else
                 {
                     RandomMove();
+                    write_history(String.Format("Dont have moves. Random we trust"));
                 }
                 Endgame();
                 //ObviousNumbers();
@@ -230,8 +88,18 @@ namespace WindowsFormsApplication3
             this.board_info = get_board_info();
             draw_array(this.board_info);
             write_history(String.Format("-- Ending move {0} --", move_number));
-            move_number++;
-            button1.Text = String.Format("Move {0}", move_number);
+            if (!Game.end)
+            {
+                move_number++;
+                button1.Text = String.Format("Move {0}", move_number);
+            }else 
+            {
+                if (Game.win)
+                    button1.Text = "Win";
+                else
+                    button1.Text = "Defeat";
+                button1.Enabled = false;
+            }
             
         }
         public List<Panel> GetNeighbors(Panel p)
@@ -258,8 +126,12 @@ namespace WindowsFormsApplication3
             {
                 var neighborPanels = GetNeighbors(numberPanel);
                 var flaggedNeighbors = neighborPanels.Where(x => x.IsFlagged);
-
-                if (flaggedNeighbors.Count() == numberPanel.AdjacentMines)
+                //Console.WriteLine("Mster neigh is {0} {1}", numberPanel.pos.X, numberPanel.pos.Y);
+                /*foreach (Panel p in flaggedNeighbors)
+                    Console.WriteLine("Flagged neigh is {0} {1}", p.pos.X, p.pos.Y);*/
+                var not_opened = neighborPanels.Where(x => !x.IsRevealed).Count();
+                //Console.WriteLine("Master not opened {0}", not_opened);
+                if (flaggedNeighbors.Count() == numberPanel.AdjacentMines && not_opened != flaggedNeighbors.Count())
                 {
                     return true;
                 }
@@ -277,16 +149,51 @@ namespace WindowsFormsApplication3
                 //For each revealed number panel on the board, get its neighbors.
                 var neighborPanels = GetNeighbors(panel);
 
-                //If the total number of hidden == the number of mines revealed by this panel...
+                //If the total number of hidden == number of mines revealed by this panel...
                 if (neighborPanels.Count(x => !x.IsRevealed) == panel.AdjacentMines)
                 {
                     //All those hidden panels must be mines, so flag them.
                     foreach (var neighbor in neighborPanels.Where(x => !x.IsRevealed))
                     {
-                        game_instance.field_stats[neighbor.pos.X, neighbor.pos.Y].set_flagged();
+                        if(!Game.flagged_btn.Contains(game_instance.field_stats[neighbor.pos.X, neighbor.pos.Y]))
+                        {
+                            MyButton btn = game_instance.field_stats[neighbor.pos.X, neighbor.pos.Y];
+                            send_click(btn, 1);
+                            write_history(String.Format("flagged on x - {0}, y - {1}", neighbor.pos.X, neighbor.pos.Y));
+                        }
                     }
                 }
             }
+        }
+
+        
+
+        public void ObviousNumbers()
+        {
+            var board = this.get_board_info();
+            var number_panels = board.Where(x => x.IsRevealed && x.AdjacentMines > 0);
+
+            foreach (var numberPanel in number_panels)
+            {
+                //Foreach number panel
+                var neighborPanels = GetNeighbors(numberPanel);
+
+                //Get all of that panel's flagged neighbors
+                var flaggedNeighbors = neighborPanels.Where(x => x.IsFlagged);
+
+                //If the number of flagged neighbors == the number in the current panel...
+                if (flaggedNeighbors.Count() == numberPanel.AdjacentMines)
+                {
+                    //All hidden neighbors must NOT have mines in them, so reveal them.
+                    foreach (var hiddenPanel in neighborPanels.Where(x => !x.IsRevealed && !x.IsFlagged))
+                    {
+                        MyButton btn = game_instance.field_stats[hiddenPanel.pos.X, hiddenPanel.pos.Y];
+                        send_click(btn, 0);
+                        write_history(String.Format("clicked on x - {0}, y - {1}", hiddenPanel.pos.X, hiddenPanel.pos.Y));
+                    }
+                }
+            }
+
         }
 
         public void RandomMove()
@@ -306,40 +213,13 @@ namespace WindowsFormsApplication3
             write_history(String.Format("clicked on x - {0}, y - {1}", btn.pos.X, btn.pos.Y));
         }
 
-        public void ObviousNumbers()
-        {
-            var board = this.get_board_info();
-            var number_panels = board.Where(x => x.IsRevealed && x.AdjacentMines > 0);
-
-            foreach (var numberPanel in number_panels)
-            {
-                //Foreach number panel
-                var neighborPanels = GetNeighbors(numberPanel);
-
-                //Get all of that panel's flagged neighbors
-                var flaggedNeighbors = neighborPanels.Where(x => x.IsFlagged);
-
-                //If the number of flagged neighbors equals the number in the current panel...
-                if (flaggedNeighbors.Count() == numberPanel.AdjacentMines)
-                {
-                    //All hidden neighbors must *not* have mines in them, so reveal them.
-                    foreach (var hiddenPanel in neighborPanels.Where(x => !x.IsRevealed && !x.IsFlagged))
-                    {
-                        MyButton btn = game_instance.field_stats[hiddenPanel.pos.X, hiddenPanel.pos.Y];
-                        send_click(btn, 0);
-                        write_history(String.Format("clicked on x - {0}, y - {1}", hiddenPanel.pos.X, hiddenPanel.pos.Y));
-                    }
-                }
-            }
-
-        }
-
         public void Endgame()
         {
             //Count all the flagged panels.  If the number of flagged panels == the number of mines on the board, reveal all non-flagged panels.
             var board = this.get_board_info();
             var flaggedPanels = board.Where(x => x.IsFlagged).Count();
-            Console.WriteLine("ENDGAME FLAGGED COUNT {0}", flaggedPanels);
+            Console.WriteLine("ENDGAME FLAGGED COUNT {0} {1}", flaggedPanels, flaggedPanels == game_instance.bombs_count);
+
             if (flaggedPanels == game_instance.bombs_count)
             {
                 //Reveal all unrevealed, unflagged panels
@@ -403,8 +283,10 @@ namespace WindowsFormsApplication3
                     {
                         board.Add(new Panel(i, j, true, false, btn.bomb_neighbours));
                     }
+                    
                 }
             }
+            //Console.WriteLine("BOARD TILE COUNT {0}", board.Count);
             return board;
         }
 
